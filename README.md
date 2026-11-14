@@ -6,3 +6,5 @@ Drag to stretch, release to wobble. Shift-drag or use two fingers to twist. Cont
 
 Open in a browser with WebGPU support. No installation, external assets, or dependencies.
 
+The head and ears are adapted from [Lowpoly Chibi Character by mehreen1919](https://poly.pizza/m/nfrpFnfKh3), licensed under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/). See [ATTRIBUTION.md](ATTRIBUTION.md) for the source and modifications.
+
