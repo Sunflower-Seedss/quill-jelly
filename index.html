@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="An interactive 3D jelly Quill, sculpted with starry golden eyes and soft chestnut hair. Native WebGPU, WGSL, and volumetric soft-body physics in one file.">
+<title>Quill Jelly — Material Study 010</title>
+<style>
+:root{color-scheme:light;--paper:#f5f3ec;--ink:#49382f;--muted:#687269;--line:#d4d8cd;--red:#b7803e;--green:#79543e}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:13px/1.5 Arial,Helvetica,sans-serif}button,input,summary{font:inherit}button,summary,input{accent-color:var(--green)}button{color:inherit;cursor:pointer}button:focus-visible,input:focus-visible,summary:focus-visible,canvas:focus-visible{outline:2px solid var(--red);outline-offset:5px}main{position:relative;min-height:760px;height:100svh;max-height:1400px;overflow:hidden}.masthead{position:absolute;left:4.2%;top:44px;z-index:2;pointer-events:none}.eyebrow,.micro{font:10px/1.5 'Courier New',monospace;letter-spacing:1.5px}.eyebrow{margin:0 0 32px}.title{font:italic 110px/.83 Georgia,'Times New Roman',serif;font-weight:400;letter-spacing:-7px;margin:0}.title span{display:block}.caption{margin:30px 0 0;line-height:1.9;color:var(--muted);font-size:12px}.live{position:absolute;right:4.2%;top:45px;display:flex;gap:9px;align-items:center;z-index:3}.dot{width:6px;height:6px;background:#718672;border-radius:50%}.live[data-state=error] .dot{background:var(--red)}.stage{position:absolute;inset:0 240px 0 150px}canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}canvas.grabbing{cursor:grabbing}.panel{position:absolute;width:202px;right:4.2%;top:25%;z-index:3}.panel h2{font:10px 'Courier New',monospace;letter-spacing:1.6px;margin:0 0 25px}.swatches{display:flex;gap:12px;margin-bottom:10px}.swatch{width:46px;height:46px;padding:4px;border:1px solid transparent;border-radius:50%;background:transparent}.swatch[aria-pressed=true]{border-color:var(--ink)}.swatch span{display:block;width:100%;height:100%;border-radius:50%;background:var(--sw);border:5px solid var(--rim);box-shadow:inset 0 0 0 2px #e9e4c5}.preset-name{font:11px Georgia,serif;font-style:italic;color:var(--muted);margin-bottom:29px}.range{display:block;margin:0 0 23px}.range div{display:flex;justify-content:space-between;font-size:11px}.range output{font:11px 'Courier New',monospace;color:var(--muted)}input[type=range]{display:block;width:100%;height:24px;margin:8px 0 0;cursor:pointer;background:transparent;appearance:none}input[type=range]::-webkit-slider-runnable-track{height:2px;background:#bec8b9}input[type=range]::-webkit-slider-thumb{appearance:none;width:10px;height:10px;background:var(--green);border-radius:50%;margin-top:-4px}input[type=range]::-moz-range-track{height:2px;background:#bec8b9}input[type=range]::-moz-range-thumb{width:10px;height:10px;background:var(--green);border:0;border-radius:50%}.actions{display:flex;gap:8px;margin:8px 0 19px}.actions button{border:1px solid #b5c0b0;background:transparent;min-height:44px;font-size:11px}.actions button:first-child{flex:1;background:var(--green);color:#fff;border-color:var(--green)}.actions button:last-child{width:57px}.check{display:flex;align-items:center;gap:9px;min-height:40px;font-size:11px}.check input{margin:0;width:13px;height:13px}.pause{width:100%;margin-top:19px;padding:12px 0;text-align:left;border:0;border-top:1px solid var(--line);background:none;font-size:11px}.pause span{float:right}.foot{position:absolute;bottom:39px;left:4.2%;z-index:2}.hint{font:italic 17px Georgia,serif;margin:0 0 9px}.subhint{font-size:10px;color:var(--muted);margin:0 0 27px}.stats{display:flex;gap:29px}.stat small{display:block;font:9px 'Courier New',monospace;letter-spacing:1px;color:var(--muted);margin-bottom:5px}.stat strong{font:15px 'Courier New',monospace;font-weight:400}.stat em{font:10px Arial;color:var(--muted);font-style:normal}.units{font-size:9px;color:var(--muted);margin:9px 0 0}.about{position:absolute;right:4.2%;bottom:39px;width:245px;z-index:4;background:var(--paper)}summary{cursor:pointer;list-style:none;border-top:1px solid var(--line);padding-top:13px;font-size:11px}summary::-webkit-details-marker{display:none}summary:after{content:'+';float:right}details[open] summary:after{content:'−'}.about p{font-size:11px;line-height:1.7;color:var(--muted)}.specimen-label{position:absolute;left:48%;bottom:22%;font:9px 'Courier New',monospace;letter-spacing:2px;color:#838b7d;pointer-events:none}.error{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);max-width:400px;width:85%;padding:30px;border:1px solid var(--line);background:var(--paper);z-index:5}.error h2{font:italic 30px Georgia;margin:0 0 12px}.error p{color:var(--muted);font-size:12px}.error code{font-size:10px;word-break:break-word}.loading{position:absolute;top:48%;left:50%;transform:translate(-50%,-50%);font:italic 18px Georgia;color:var(--muted);pointer-events:none}.corner{position:absolute;left:4.2%;top:51%;font:8px 'Courier New',monospace;letter-spacing:1.2px;color:#8b9185;writing-mode:vertical-rl}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}button:disabled,input:disabled{opacity:.4;cursor:default}
+@media(min-width:1500px){.stage{right:280px;left:190px}.title{font-size:135px}.panel{width:220px}}
+@media(max-width:900px){main{min-height:1060px;height:auto;max-height:none}.masthead{top:30px;left:6%}.eyebrow{font-size:9px;margin-bottom:23px}.title{font-size:83px;letter-spacing:-5px}.caption{font-size:11px;margin-top:23px}.live{right:6%;top:31px;font-size:9px}.stage{inset:180px 0 auto;height:520px}.panel{top:710px;left:6%;right:auto;width:42%}.panel h2{margin-bottom:16px}.swatches{margin-bottom:7px}.preset-name{margin-bottom:20px}.range{margin-bottom:13px}.foot{bottom:auto;top:720px;left:55%;right:5%}.hint{font-size:16px}.subhint{line-height:1.7;margin-bottom:22px}.stats{display:grid;gap:14px;grid-template-columns:1fr 1fr}.about{bottom:auto;top:1010px;right:5%;width:40%}.corner{display:none}.specimen-label{left:50%;transform:translateX(-50%);bottom:auto;top:666px;white-space:nowrap}.about[open]{padding-bottom:25px}main:has(.about[open]){min-height:1330px}}
+@media(max-width:480px){main{min-height:1260px}.stage{top:190px;height:465px}.panel{top:697px;width:45%}.foot{top:707px;left:59%;right:5%}.stats{grid-template-columns:1fr;gap:12px}.stat strong{font-size:14px}.about{top:1180px;left:6%;width:88%}main:has(.about[open]){min-height:1630px}.specimen-label{top:640px}.subhint{font-size:9px}.swatches{gap:5px}.swatch{width:43px;height:43px}.caption{font-size:10px}.title{font-size:78px}.live{font-size:8px;letter-spacing:1px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+</style>
+</head>
+<body><main>
+<header class="masthead"><p class="eyebrow">MATERIAL STUDIES / NO. 010</p><h1 class="title"><span>Quill</span><span>Jelly.</span></h1><p class="caption">A little golden joy.<br>A very big wobble.<br>Too excited to sit still.</p></header>
+<div class="live micro" id="status" role="status"><i class="dot"></i><span>WEBGPU · WARMING UP</span></div>
+<div class="stage"><canvas id="canvas" tabindex="0" aria-label="Interactive 3D jelly Quill. Drag to stretch. Arrow keys nudge; space pauses; R resets."></canvas><div class="loading" id="loading">Preparing something soft…</div></div>
+<span class="corner">SOFT MATTER / SWEET SCIENCE</span>
+<aside class="panel" aria-label="Specimen controls"><h2>THE SPECIMEN</h2>
+<div class="swatches" role="group" aria-label="Jelly color presets"><button class="swatch" aria-label="Peach glow" title="Peach glow" aria-pressed="true" data-preset="0" style="--sw:#e9a078;--rim:#785342"><span></span></button><button class="swatch" aria-label="Honey drop" title="Honey drop" aria-pressed="false" data-preset="1" style="--sw:#e8b85e;--rim:#825d39"><span></span></button><button class="swatch" aria-label="Rose quartz" title="Rose quartz" aria-pressed="false" data-preset="2" style="--sw:#dfa2ab;--rim:#795248"><span></span></button></div><div id="presetName" class="preset-name">01 — Peach glow</div>
+<label class="range" for="firmness"><div><span>Firmness</span><output id="firmValue">45%</output></div><input id="firmness" type="range" min="0" max="100" value="45"></label>
+<label class="range" for="damping"><div><span>Internal damping</span><output id="dampValue">35%</output></div><input id="damping" type="range" min="0" max="100" value="35"></label>
+<div class="actions"><button id="nudge">Give it a nudge ↗</button><button id="reset">Reset</button></div>
+<label class="check"><input id="slow" type="checkbox">¼ speed</label><label class="check"><input id="mesh" type="checkbox">Show mesh</label>
+<button id="pause" class="pause" aria-pressed="false">Pause <span>Ⅱ</span></button>
+</aside>
+<footer class="foot"><p class="hint">A little squeeze. A lot of joy.</p><p class="subhint">Grab anywhere & stretch. Release for a wobble.<br>Shift-drag or use two fingers to gently twist.</p><div class="stats"><div class="stat"><small>MASS</small><strong id="mass">—</strong> <em>u</em></div><div class="stat"><small>VOLUME</small><strong id="volume">—</strong> <em>%</em></div><div class="stat"><small>KINETIC</small><strong id="energy">—</strong> <em>u</em></div></div><p class="units">Illustrative units · volume relative to rest</p></footer>
+<div class="specimen-label">FIG. 010 &nbsp; / &nbsp; QUILL / JOY IN JELLY</div>
+<details class="about"><summary>Inside the experiment</summary><p>A small volume of tetrahedra, solved on the CPU and skinned on the GPU, held together by XPBD elastic and volume constraints. The hair and hoodie are a little firmer; the peach jelly gives. Fixed 120 Hz steps, strain limits and an inversion barrier keep it intact. Gravity, contact friction and internal damping let it settle.</p><p>Native WebGPU and WGSL. A back-face thickness pass drives light absorption, refracted studio light, Fresnel reflections and edge transmission. His sculpted star pupils, smile, freckles and tiny bubbles follow the same tetrahedra as the jelly. Soft filtered shadows ground the slice.</p><p>Drag on the slice to pull; Shift-drag or a second finger adds twist. Arrow keys nudge, Space pauses, R resets. Reduced-motion mode starts paused. Optical effects and physical units are artistic approximations.</p></details>
+</main>
+<script>
+'use strict';
+// Quill Jelly — no libraries, network resources, textures, or build step.
+const $=s=>document.querySelector(s), canvas=$('#canvas');
+const V={sub:(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]],add:(a,b)=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]],mul:(a,s)=>[a[0]*s,a[1]*s,a[2]*s],dot:(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2],cross:(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],norm:a=>{let s=1/(Math.hypot(...a)||1);return a.map(x=>x*s)}};
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+let rng=914;function rand(){rng=(Math.imul(rng,1664525)+1013904223)|0;return (rng>>>0)/4294967296}
+// A triangular lattice is extruded and split into conforming tetrahedra.
+// A short, rounded tip and bowed bottom give a generous candy silhouette.
+// Sculpted implicit character. All coordinates are in one deformable volume.
+const sculptures=[];
+function ell(c,r,mat){sculptures.push({c,r,mat});}
+function lock(points,r0,r1,mat=3,flat=.46){for(let j=0;j<points.length-1;j++)sculptures.push({a:points[j],b:points[j+1],radius:r0+(r1-r0)*j/(points.length-1),endRadius:r0+(r1-r0)*(j+1)/(points.length-1),flat,mat});}
+function bezier(a,b,c,d,n=10){let p=[];for(let i=0;i<=n;i++){let t=i/n,s=1-t;p.push([0,1,2].map(k=>s*s*s*a[k]+3*s*s*t*b[k]+3*s*t*t*c[k]+t*t*t*d[k]));}return p;}
+ell([0,2.06,0],[.87,.91,.64],0);
+ell([0,.52,-.04],[.84,.57,.43],4);
+ell([0,1.13,0],[.35,.40,.33],0);
+for(let side of [-1,1]){
+ ell([side*.84,1.95,.04],[.24,.33,.25],0);
+ ell([side*.57,1.0,.42],[.235,.31,.255],0);
+ lock([[side*.62,.23,.16],[side*.71,.51,.32],[side*.59,.99,.43]],.23,.21,0,1);
+ ell([side*.65,.44,.05],[.27,.31,.33],4);
+}
+// Cap clipped across the forehead and wrapped around the back of the head.
+sculptures.push({c:[0,2.38,-.13],r:[.99,.89,.66],mat:3,cap:true});
+lock(bezier([.30,2.99,.25],[-.36,3.36,.5],[-1.02,2.75,.45],[-.76,2.17,.48]),.25,.045);
+lock(bezier([.05,2.92,.45],[-.63,3.07,.64],[-.72,2.38,.72],[-.32,2.15,.63]),.215,.035);
+lock(bezier([.28,2.97,.35],[.62,2.91,.7],[.56,2.39,.72],[.98,2.20,.40]),.255,.035);
+lock(bezier([.43,2.89,.05],[1.04,2.96,.22],[1.04,2.55,.22],[1.16,2.61,.03]),.24,.035);
+lock(bezier([-.62,2.75,-.02],[-1.16,2.65,.18],[-.97,2.09,.31],[-1.12,2.20,.17]),.23,.035);
+lock(bezier([-.85,2.35,-.16],[-1.06,2.09,.02],[-.98,1.64,.04],[-.72,1.60,.02]),.20,.03);
+lock(bezier([.83,2.25,-.18],[1.03,1.99,.02],[.90,1.56,.13],[.69,1.52,.04]),.22,.035);
+lock(bezier([.64,1.88,-.25],[.91,1.55,-.14],[.92,1.43,-.04],[.67,1.43,.0]),.16,.03);
+// The distinctive loose curl at the crown, thick enough to remain elastic.
+lock(bezier([.28,2.96,-.06],[.94,3.60,-.05],[-.34,3.70,-.07],[-.28,3.06,-.06],16),.105,.075,3,.9);
+function partDistance(s,x,y,z){if(s.c){let qx=(x-s.c[0])/s.r[0],qy=(y-s.c[1])/s.r[1],qz=(z-s.c[2])/s.r[2];let d=(Math.hypot(qx,qy,qz)-1)*Math.min(...s.r);if(s.cap)d=Math.max(d,Math.min(2.60-y,z+.14));return d;}let ax=s.a[0],ay=s.a[1],az=s.a[2],bx=s.b[0]-ax,by=s.b[1]-ay,bz=(s.b[2]-az)/s.flat,px=x-ax,py=y-ay,pz=(z-az)/s.flat,t=clamp((px*bx+py*by+pz*bz)/(bx*bx+by*by+bz*bz||1),0,1);return Math.hypot(px-bx*t,py-by*t,pz-bz*t)-(s.radius+(s.endRadius-s.radius)*t);}
+function field(x,y,z,material=false){let d=100,nearest=100,mat=0;for(let s of sculptures){let q=partDistance(s,x,y,z);if(q<nearest){nearest=q;mat=s.mat;}let h=Math.max(.045-Math.abs(d-q),0)/.045;d=Math.min(d,q)-h*h*.045*.25;}d=Math.max(d,.14-y);return material?[d,mat]:d;}
+const cubeCorners=[[0,0,0],[1,0,0],[0,1,0],[1,1,0],[0,0,1],[1,0,1],[0,1,1],[1,1,1]];
+const cubeTets=[[0,1,3,7],[0,3,2,7],[0,2,6,7],[0,6,4,7],[0,4,5,7],[0,5,1,7]];
+function characterBuild(){
+ this.spacing=.235;this.origin=[-1.41,.14,-.94];this.gridSize=[12,15,8];this.cellTets=new Map();let nodeMap=new Map(),edgeSet=new Set();this.volumes=[];this.invRest=[];let masses=[];
+ const getNode=(x,y,z)=>{let key=x+','+y+','+z;if(nodeMap.has(key))return nodeMap.get(key);let id=this.rest.length/3;nodeMap.set(key,id);this.rest.push(this.origin[0]+x*this.spacing,this.origin[1]+y*this.spacing,this.origin[2]+z*this.spacing);masses.push(0);return id;};
+ for(let z=0;z<this.gridSize[2];z++)for(let y=0;y<this.gridSize[1];y++)for(let x=0;x<this.gridSize[0];x++){
+ let vals=cubeCorners.map(c=>field(this.origin[0]+(x+c[0])*this.spacing,this.origin[1]+(y+c[1])*this.spacing,this.origin[2]+(z+c[2])*this.spacing));if(Math.min(...vals)>.045)continue;
+ let ids=cubeCorners.map(c=>getNode(x+c[0],y+c[1],z+c[2])),tis=[];
+ for(let ct of cubeTets){let t=ct.map(i=>ids[i]),p=t.map(i=>this.rest.slice(i*3,i*3+3));let vol=V.dot(V.sub(p[1],p[0]),V.cross(V.sub(p[2],p[0]),V.sub(p[3],p[0])))/6;if(vol<0){[t[1],t[2]]=[t[2],t[1]];[p[1],p[2]]=[p[2],p[1]];vol=-vol;}tis.push(this.tets.length);this.tets.push(t);this.volumes.push(vol);this.invRest.push(inverse3(V.sub(p[1],p[0]),V.sub(p[2],p[0]),V.sub(p[3],p[0])));for(let id of t)masses[id]+=vol/4;for(let i=0;i<4;i++)for(let j=i+1;j<4;j++)edgeSet.add(Math.min(t[i],t[j])+','+Math.max(t[i],t[j]));}this.cellTets.set(x+','+y+','+z,tis);
+ }
+ this.weights=Float64Array.from(masses);this.mass=masses.reduce((a,b)=>a+b,0);this.restVolume=this.volumes.reduce((a,b)=>a+b,0);this.invMass=Float64Array.from(masses,w=>1/Math.max(w,.0001));
+ for(let e of edgeSet){let [a,b]=e.split(',').map(Number),pa=this.rest.slice(a*3,a*3+3),pb=this.rest.slice(b*3,b*3+3),m=field((pa[0]+pb[0])/2,(pa[1]+pb[1])/2,(pa[2]+pb[2])/2,true)[1];this.edges.push([a,b,Math.hypot(...V.sub(pa,pb)),m===3?1.8:m===4?2:1]);}
+ let faces=new Map();for(let t of this.tets)for(let f of [[t[0],t[2],t[1]],[t[0],t[1],t[3]],[t[0],t[3],t[2]],[t[1],t[2],t[3]]]){let key=[...f].sort((a,b)=>a-b).join(',');if(faces.has(key))faces.delete(key);else faces.set(key,f);}this.tri=[...faces.values()];
+ this.elambda=new Float64Array(this.edges.length);this.vlambda=new Float64Array(this.tets.length);this.safe=new Float64Array(this.rest.length);this.g=new Float64Array(12);this.rest=new Float64Array(this.rest);
+}
+class SoftBody {
+ constructor(){this.n=13;this.layers=4;this.rest=[];this.tets=[];this.tri=[];this.edges=[];this.grab=null;this.firm=.45;this.damp=.35;this.build();this.reset()}
+ build(){characterBuild.call(this);}
+ reset(){this.p=Float64Array.from(this.rest);this.prev=Float64Array.from(this.rest);this.vel=new Float64Array(this.rest.length);this.grab=null;this.time=0;this.recoveries=0}
+ volume(t){let p=this.p,a=t[0]*3,b=t[1]*3,c=t[2]*3,d=t[3]*3;let bx=p[b]-p[a],by=p[b+1]-p[a+1],bz=p[b+2]-p[a+2],cx=p[c]-p[a],cy=p[c+1]-p[a+1],cz=p[c+2]-p[a+2],dx=p[d]-p[a],dy=p[d+1]-p[a+1],dz=p[d+2]-p[a+2];return (bx*(cy*dz-cz*dy)+by*(cz*dx-cx*dz)+bz*(cx*dy-cy*dx))/6}
+ step(h=1/120){let p=this.p,v=this.vel,w=this.invMass,g=this.g;this.safe.set(p);this.prev.set(p);this.elambda.fill(0);this.vlambda.fill(0);let decay=Math.exp(-(.3+this.damp*2.8)*h);
+ for(let i=0;i<w.length;i++){let q=i*3;v[q+1]-=3.8*h;for(let d=0;d<3;d++){v[q+d]*=decay;p[q+d]+=clamp(v[q+d],-10,10)*h}}
+ let compliance=(.008+Math.pow(1-this.firm,2)*.3)/(h*h);
+ for(let it=0;it<7;it++){
+ for(let ei=0;ei<this.edges.length;ei++){let e=this.edges[ei],a=e[0]*3,b=e[1]*3,dx=p[b]-p[a],dy=p[b+1]-p[a+1],dz=p[b+2]-p[a+2],len=Math.hypot(dx,dy,dz)||1e-8,alpha=compliance/e[3],c=len-e[2],dl=(-c-alpha*this.elambda[ei])/(w[e[0]]+w[e[1]]+alpha);this.elambda[ei]+=dl;let s=dl/len;for(let d=0;d<3;d++){let delta=d===0?dx:d===1?dy:dz;p[a+d]-=w[e[0]]*s*delta;p[b+d]+=w[e[1]]*s*delta}
+ // Hard, generous strain limits are separate from the elastic constraint.
+ if(len>e[2]*1.65||len<e[2]*.48){let target=clamp(len,e[2]*.48,e[2]*1.65),ss=(len-target)/(len*(w[e[0]]+w[e[1]]));for(let d=0;d<3;d++){let delta=d===0?dx:d===1?dy:dz;p[a+d]+=w[e[0]]*ss*delta;p[b+d]-=w[e[1]]*ss*delta}}
+ }
+ for(let ti=0;ti<this.tets.length;ti++){let t=this.tets[ti],a=t[0]*3,b=t[1]*3,c=t[2]*3,d=t[3]*3,bx=p[b]-p[a],by=p[b+1]-p[a+1],bz=p[b+2]-p[a+2],cx=p[c]-p[a],cy=p[c+1]-p[a+1],cz=p[c+2]-p[a+2],dx=p[d]-p[a],dy=p[d+1]-p[a+1],dz=p[d+2]-p[a+2];g[3]=(cy*dz-cz*dy)/6;g[4]=(cz*dx-cx*dz)/6;g[5]=(cx*dy-cy*dx)/6;g[6]=(dy*bz-dz*by)/6;g[7]=(dz*bx-dx*bz)/6;g[8]=(dx*by-dy*bx)/6;g[9]=(by*cz-bz*cy)/6;g[10]=(bz*cx-bx*cz)/6;g[11]=(bx*cy-by*cx)/6;g[0]=-g[3]-g[6]-g[9];g[1]=-g[4]-g[7]-g[10];g[2]=-g[5]-g[8]-g[11];let vol=bx*g[3]+by*g[4]+bz*g[5],rv=this.volumes[ti],alpha=.0000000003/(h*h),den=alpha;for(let j=0;j<4;j++)den+=w[t[j]]*(g[j*3]**2+g[j*3+1]**2+g[j*3+2]**2);let dl=(-(vol-rv)-alpha*this.vlambda[ti])/(den||1);this.vlambda[ti]+=dl;dl=clamp(dl,-.09,.09);for(let j=0;j<4;j++)for(let k=0;k<3;k++)p[t[j]*3+k]+=w[t[j]]*dl*g[j*3+k];
+ // Unilateral volume barrier pushes toward a positive signed volume.
+ if(vol<rv*.25){let bd=(rv*.25-vol)/(den||1);for(let j=0;j<4;j++)for(let k=0;k<3;k++)p[t[j]*3+k]+=w[t[j]]*Math.min(bd,.12)*g[j*3+k]}
+ }
+ if(this.grab){let gr=this.grab;for(let item of gr.nodes){let id=item[0],q=id*3,off=item[1],ang=gr.twist,co=Math.cos(ang),si=Math.sin(ang),ox=off[0]*co-off[1]*si,oy=off[0]*si+off[1]*co;let targets=[gr.target[0]+ox,gr.target[1]+oy,gr.target[2]+off[2]];let strength=item[2]*.32;for(let d=0;d<3;d++)p[q+d]+=clamp(targets[d]-p[q+d],-.10,.10)*strength}}
+ for(let i=0;i<w.length;i++){let q=i*3;if(p[q+1]<.105)p[q+1]=.105;/* soft skin stays above the floor */}
+ }
+ // Reject an invalid substep, rather than letting one bad element poison the mesh.
+ let valid=true;for(let ti=0;ti<this.tets.length;ti++)if(this.volume(this.tets[ti])<this.volumes[ti]*.025){valid=false;break}for(let i=0;i<p.length;i++)if(!Number.isFinite(p[i])||Math.abs(p[i])>30){valid=false;break}
+ if(!valid){p.set(this.safe);v.fill(0);this.recoveries++;return}
+ for(let i=0;i<w.length;i++){let q=i*3;for(let d=0;d<3;d++)v[q+d]=clamp((p[q+d]-this.prev[q+d])/h,-9,9);if(p[q+1]<.106){v[q]*=.84;v[q+2]*=.84;if(v[q+1]<0)v[q+1]*=-.08}}
+ // Pairwise velocity damping removes strain motion without anchoring nodes.
+ let damp=.015+this.damp*.10;for(let e of this.edges){let a=e[0]*3,b=e[1]*3,dx=p[b]-p[a],dy=p[b+1]-p[a+1],dz=p[b+2]-p[a+2],l2=dx*dx+dy*dy+dz*dz||1,s=((v[b]-v[a])*dx+(v[b+1]-v[a+1])*dy+(v[b+2]-v[a+2])*dz)/l2*damp*.5;v[a]+=dx*s;v[a+1]+=dy*s;v[a+2]+=dz*s;v[b]-=dx*s;v[b+1]-=dy*s;v[b+2]-=dz*s}this.time+=h;
+ }
+ metrics(){let vol=0,ke=0,min=1e9;for(let i=0;i<this.tets.length;i++){let vv=this.volume(this.tets[i]);vol+=vv;min=Math.min(min,vv/this.volumes[i])}for(let i=0;i<this.weights.length;i++){let q=i*3;ke+=.5*this.weights[i]*(this.vel[q]**2+this.vel[q+1]**2+this.vel[q+2]**2)}return {mass:this.mass,volume:vol/this.restVolume,energy:ke,minVolume:min,recoveries:this.recoveries}}
+ nudge(dx=1){for(let i=0;i<this.weights.length;i++){let q=i*3,y=this.p[q+1];this.vel[q]+=dx*(.3+y*.55);this.vel[q+1]+=.3+y*.15;this.vel[q+2]+=.3*Math.sin(this.p[q]*1.2)}}
+ grabAt(point){let nodes=[];for(let i=0;i<this.weights.length;i++){let q=i*3,off=[this.p[q]-point[0],this.p[q+1]-point[1],this.p[q+2]-point[2]],d=Math.hypot(...off);if(d<.44)nodes.push([i,off,Math.pow(1-d/.52,1.2)])}this.grab={nodes,target:[...point],origin:[...point],twist:0};return nodes.length}
+}
+function inverse3(a,b,c){let x=V.cross(b,c),y=V.cross(c,a),z=V.cross(a,b),det=V.dot(a,x);return [...x.map(v=>v/det),...y.map(v=>v/det),...z.map(v=>v/det)]}
+// inverse3 returns rows, for barycentric coordinates and GPU deformation gradients.
+function bary(p,a,inv){let d=V.sub(p,a),b=V.dot(inv.slice(0,3),d),c=V.dot(inv.slice(3,6),d),e=V.dot(inv.slice(6,9),d);return [1-b-c-e,b,c,e]}
+function embed(p,sim){let best=0,bw=null,err=1e9;for(let i=0;i<sim.tets.length;i++){let t=sim.tets[i],a=sim.rest.slice(t[0]*3,t[0]*3+3),w=bary(p,a,sim.invRest[i]),pen=0;for(let v of w)pen+=Math.max(0,-v);if(pen<err){err=pen;best=i;bw=w;if(pen<1e-7)break}}return [best,bw]}
+function characterEmbed(p,sim){let cell=p.map((v,k)=>Math.floor((v-sim.origin[k])/sim.spacing));let best=0,bw=null,err=1e9;for(let radius=0;radius<=2;radius++){for(let z=cell[2]-radius;z<=cell[2]+radius;z++)for(let y=cell[1]-radius;y<=cell[1]+radius;y++)for(let x=cell[0]-radius;x<=cell[0]+radius;x++){let tis=sim.cellTets.get(x+','+y+','+z);if(!tis)continue;for(let ti of tis){let t=sim.tets[ti],w=bary(p,sim.rest.slice(t[0]*3,t[0]*3+3),sim.invRest[ti]),pen=w.reduce((a,v)=>a+Math.max(0,-v),0);if(pen<err){err=pen;best=ti;bw=w;if(pen<1e-6)return [best,bw];}}}if(bw&&err<.5)break;}if(!bw)throw Error('A character vertex could not be attached to the volume');return [best,bw];}
+function makeGeometry(sim){let verts=[],indices=[];function vertex(p,n,mat){let [ti,w]=characterEmbed(p,sim),id=verts.length/16;verts.push(...p,...n,...w,ti,mat,0,0,0,0);return id;}function tri(a,b,c){indices.push(a,b,c);}
+ // Extract a genuine closed 3D isosurface, independently of the coarser solver.
+ let step=.065,origin=[-1.43,.10,-.98],size=[44,54,31],points=[],values=[];const idx=(x,y,z)=>(z*(size[1]+1)+y)*(size[0]+1)+x;
+ for(let z=0;z<=size[2];z++)for(let y=0;y<=size[1];y++)for(let x=0;x<=size[0];x++){let p=[origin[0]+x*step,origin[1]+y*step,origin[2]+z*step];points.push(p);values.push(field(...p));}
+ let cache=new Map();function edge(a,b){let key=Math.min(a,b)+','+Math.max(a,b);if(cache.has(key))return cache.get(key);let t=values[a]/(values[a]-values[b]),p=points[a].map((v,k)=>v+(points[b][k]-v)*t),eps=.002,n=V.norm([field(p[0]+eps,p[1],p[2])-field(p[0]-eps,p[1],p[2]),field(p[0],p[1]+eps,p[2])-field(p[0],p[1]-eps,p[2]),field(p[0],p[1],p[2]+eps)-field(p[0],p[1],p[2]-eps)]),mat=field(...p,true)[1],id=vertex(p,n,20);verts[id*16+12]=mat===0?1:0;verts[id*16+13]=mat===3?1:0;verts[id*16+14]=mat===4?1:0;cache.set(key,id);return id;}
+ function oriented(a,b,c){let p=[a,b,c].map(i=>verts.slice(i*16,i*16+3)),n=V.cross(V.sub(p[1],p[0]),V.sub(p[2],p[0])),nn=verts.slice(a*16+3,a*16+6);if(V.dot(n,nn)<0)tri(a,c,b);else tri(a,b,c);}
+ for(let z=0;z<size[2];z++)for(let y=0;y<size[1];y++)for(let x=0;x<size[0];x++){let ids=cubeCorners.map(c=>idx(x+c[0],y+c[1],z+c[2]));if(ids.every(i=>values[i]>0)||ids.every(i=>values[i]<0))continue;for(let ct of cubeTets){let t=ct.map(i=>ids[i]),inside=t.filter(i=>values[i]<0),outside=t.filter(i=>values[i]>=0);if(inside.length===1){let a=inside[0];oriented(edge(a,outside[0]),edge(a,outside[1]),edge(a,outside[2]));}else if(inside.length===3){let a=outside[0];oriented(edge(a,inside[0]),edge(a,inside[1]),edge(a,inside[2]));}else if(inside.length===2){let a=edge(inside[0],outside[0]),b=edge(inside[0],outside[1]),c=edge(inside[1],outside[0]),d=edge(inside[1],outside[1]);oriented(a,b,c);oriented(b,d,c);}}}
+ function faceZ(x,y){return .64*Math.sqrt(Math.max(.08,1-(x/.87)**2-((y-2.06)/.91)**2));}
+ function sphere(c,r,mat,angle=0,S=24,T=16){let grid=[],co=Math.cos(angle),si=Math.sin(angle);for(let i=0;i<=T;i++){grid[i]=[];let ph=i/T*Math.PI;for(let j=0;j<=S;j++){let th=j/S*Math.PI*2,n=[Math.sin(ph)*Math.cos(th),Math.cos(ph),Math.sin(ph)*Math.sin(th)],xx=n[0]*r[0],yy=n[1]*r[1],p=[c[0]+xx*co-yy*si,c[1]+xx*si+yy*co,c[2]+n[2]*r[2]],no=V.norm([n[0]/r[0]*co-n[1]/r[1]*si,n[0]/r[0]*si+n[1]/r[1]*co,n[2]/r[2]]);if(mat>=7&&mat<=10&&c[1]>1.88&&c[1]<2.3&&c[2]>.5)p[2]+=faceZ(p[0],p[1])-faceZ(c[0],c[1]);grid[i][j]=vertex(p,no,mat);}}for(let i=0;i<T;i++)for(let j=0;j<S;j++){tri(grid[i][j],grid[i+1][j+1],grid[i+1][j]);tri(grid[i][j],grid[i][j+1],grid[i+1][j+1]);}}
+ function star(cx,cy,cz,rx,ry,mat){let center=vertex([cx,cy,cz+.025],[0,0,1],mat),back=vertex([cx,cy,cz-.014],[0,0,-1],mat),ring=[];for(let i=0;i<32;i++){let a=i/32*Math.PI*2,r=.40+.60*Math.pow(Math.abs(Math.cos(a*2)),7);ring.push(vertex([cx+Math.sin(a)*rx*r,cy+Math.cos(a)*ry*r,cz+(cy>1.8?faceZ(cx+Math.sin(a)*rx*r,cy+Math.cos(a)*ry*r)-faceZ(cx,cy):0)],[Math.sin(a)*.3,Math.cos(a)*.3,.94],mat));}for(let i=0;i<32;i++){tri(center,ring[(i+1)%32],ring[i]);tri(back,ring[i],ring[(i+1)%32]);}}
+ function tube(points,r,mat){for(let i=0;i<points.length;i++)sphere(points[i],[r,r,r*.62],mat,0,8,6);}
+ // Sculpted eye whites, candy-gold irises, and raised four-point star pupils.
+ for(let side of [-1,1]){let x=side*.36;
+  sphere([x,2.05,.589],[.269,.305,.028],7,side*-.08);
+  sphere([x,2.04,.603],[.245,.28,.026],8,side*-.08);
+  sphere([x,2.035,.630],[.174,.23,.022],9);
+  star(x,2.04,.657,.105,.159,10);
+  sphere([x-side*.065,2.175,.654],[.023,.031,.012],10);
+  sphere([x+side*.07,1.92,.653],[.012,.018,.009],10);
+  let brow=bezier([side*.18,2.41,.574],[side*.32,2.54,.60],[side*.5,2.49,.53],[side*.60,2.40,.47],14);tube(brow,.025,3);
+  sphere([side*.87,1.96,.21],[.128,.205,.061],11,side*-.18);
+  sphere([side*.88,1.96,.255],[.066,.12,.035],0);
+  sphere([side*.56,1.71,.44],[.16,.065,.027],12,side*.1);
+  // Tiny real freckles follow the same deformation gradients as the cheeks.
+  for(let i=0;i<5;i++){let xx=side*(.30+i*.072),yy=1.77+Math.sin(i*2)*.055,zz=.64*Math.sqrt(Math.max(.1,1-(xx/.87)**2-((yy-2.06)/.91)**2));sphere([xx,yy,zz+.006],[.008,.010,.006],3,0,8,6);}
+  // Knuckle lobes and fine creases keep the raised hands legible as fists.
+  for(let i=0;i<3;i++)sphere([side*(.43+i*.075),1.15-i*.025,.59],[.08,.104,.075],0,side*-.35,16,10);
+  for(let i=0;i<2;i++)tube([[side*(.48+i*.085),1.07,.65],[side*(.54+i*.085),1.03,.65]],.009,11);
+ }
+ sphere([0,1.59,.504],[.316,.235,.08],7);
+ sphere([0,1.59,.532],[.28,.205,.067],11);
+ sphere([0,1.49,.587],[.213,.103,.025],12);
+ sphere([0,1.727,.581],[.228,.049,.025],8);
+ sphere([0,1.865,.641],[.059,.075,.055],0);
+ // Shirt, lapels, hood piping, and his little sun medallion.
+ sphere([0,.48,.367],[.20,.30,.045],8);
+ for(let side of [-1,1]){tube(bezier([side*.20,1.01,.27],[side*.43,1.0,.37],[side*.72,.67,.32],[side*.73,.33,.29]),.054,5);tube([[side*.16,.71,.43],[side*.08,.57,.46],[side*.01,.64,.46]],.023,5);}
+ star(0,.435,.471,.153,.18,6);sphere([0,.435,.497],[.115,.14,.035],3);sphere([0,.435,.533],[.085,.112,.023],6);
+ let fleshCount=indices.length,bubbleStart=indices.length;
+ for(let i=0;i<16;i++){let x=(rand()-.5)*1.0,y=1.45+rand()*1.05,z=.64*Math.sqrt(Math.max(.05,1-(x/.87)**2-((y-2.06)/.91)**2))-.04,r=.009+rand()*.009;sphere([x,y,z],[r,r,r],2,0,8,6);}
+ return {vertices:new Float32Array(verts),indices:new Uint32Array(indices),fleshCount,bubbleStart};
+}
+
+const shader=`
+struct Uniforms {vp:mat4x4f,lightVP:mat4x4f,eye:vec4f,right:vec4f,up:vec4f,forward:vec4f,screen:vec4f,palette:vec4f,skin:vec4f,extra:vec4f};
+struct Tet {ids:vec4u,r0:vec4f,r1:vec4f,r2:vec4f};
+@group(0) @binding(0) var<uniform> U:Uniforms;
+@group(0) @binding(1) var<storage,read> nodes:array<vec4f>;
+@group(0) @binding(2) var<storage,read> tets:array<Tet>;
+@group(1) @binding(0) var backTex:texture_2d<f32>;
+@group(1) @binding(1) var shadowTex:texture_depth_2d;
+@group(1) @binding(2) var shadowSampler:sampler_comparison;
+@group(1) @binding(3) var internalTex:texture_2d<f32>;
+struct VI {@location(0) p:vec3f,@location(1) n:vec3f,@location(2) w:vec4f,@location(3) ti:f32,@location(4) mat:f32,@location(5) blend:vec3f};
+struct VO {@builtin(position) clip:vec4f,@location(0) p:vec3f,@location(1) n:vec3f,@location(2) rest:vec3f,@location(3) @interpolate(flat) mat:u32,@location(4) blend:vec3f};
+fn deform(v:VI)->VO{let t=tets[u32(v.ti)];let a=nodes[t.ids.x].xyz;let b=nodes[t.ids.y].xyz;let c=nodes[t.ids.z].xyz;let d=nodes[t.ids.w].xyz;let E=mat3x3f(b-a,c-a,d-a);let inv=transpose(mat3x3f(t.r0.xyz,t.r1.xyz,t.r2.xyz));let F=E*inv;var o:VO;o.p=a*v.w.x+b*v.w.y+c*v.w.z+d*v.w.w;o.n=normalize(cross(F[1],F[2])*v.n.x+cross(F[2],F[0])*v.n.y+cross(F[0],F[1])*v.n.z);o.rest=v.p;o.mat=u32(v.mat);o.blend=v.blend;o.clip=U.vp*vec4f(o.p,1);return o;}
+@vertex fn vs(v:VI)->VO{return deform(v);}
+@vertex fn shadowVS(v:VI)->@builtin(position) vec4f {let o=deform(v);return U.lightVP*vec4f(o.p,1);}
+@fragment fn backFS(v:VO)->@location(0) f32{return distance(U.eye.xyz,v.p);}
+fn studio(dir:vec3f)->vec3f{let ceiling=smoothstep(-.3,.8,dir.y);var c=mix(vec3f(.63,.65,.59),vec3f(.94,.94,.88),ceiling);let box1=pow(max(0.,dot(dir,normalize(vec3f(-.65,1.,1.2)))),46.);let box2=pow(max(0.,dot(dir,normalize(vec3f(1.,.5,-.7)))),64.);c+=vec3f(1.35,1.26,1.15)*box1+vec3f(.8,.88,.85)*box2;return c;}
+fn shadow(p:vec3f)->f32{let lp=U.lightVP*vec4f(p,1);let ndc=lp.xyz/lp.w;let uv=vec2f(ndc.x*.5+.5,.5-ndc.y*.5);if(any(uv<vec2f(.01))||any(uv>vec2f(.99))||ndc.z<0.||ndc.z>1.){return 1.;}var s=0.;for(var x=-2;x<=2;x++){for(var y=-2;y<=2;y++){s+=textureSampleCompareLevel(shadowTex,shadowSampler,uv+vec2f(f32(x),f32(y))*.004,ndc.z-.0025);}}return s/25.;}
+fn tonemap(c:vec3f)->vec3f{let x=c*.88;let a=(x*(2.51*x+vec3f(.03)))/(x*(2.43*x+vec3f(.59))+vec3f(.14));return pow(clamp(a,vec3f(0),vec3f(1)),vec3f(1./2.2));}
+@fragment fn internalFS(v:VO)->@location(0) vec4f{let N=normalize(v.n);let V=normalize(U.eye.xyz-v.p);let fr=pow(1.-abs(dot(N,V)),2.);let glint=pow(max(0.,dot(N,normalize(vec3f(-.4,.7,1.)))),18.);return vec4f(vec3f(.16,.06,.04)+vec3f(.8,.68,.52)*(fr*.5+glint),.25+fr*.4);}
+@fragment fn fs(v:VO,@builtin(front_facing) front:bool)->@location(0) vec4f {
+ let N=normalize(select(-v.n,v.n,front));let V=normalize(U.eye.xyz-v.p);let L=normalize(vec3f(-3.,6.,4.));let H=normalize(L+V);let nl=max(0.,dot(N,L));let nv=max(.001,dot(N,V));let fr=.035+.965*pow(1.-nv,5.);let refl=studio(reflect(-V,N));let sh=.72+.28*shadow(v.p);
+ var base=U.palette.rgb;var absorption=vec3f(.30,1.1,1.6);var translucency=.6;var gloss=.7;
+ switch v.mat {
+ case 3u:{base=vec3f(.16,.055,.026);absorption=vec3f(1.3,2.8,3.8);translucency=.22;gloss=.48;}
+ case 4u:{base=vec3f(.21,.12,.075);absorption=vec3f(1.6,2.8,3.4);translucency=.25;gloss=.45;}
+ case 5u:{base=vec3f(.34,.20,.12);translucency=.18;gloss=.4;}
+ case 6u:{base=vec3f(.98,.51,.10);absorption=vec3f(.15,.65,2.7);translucency=.4;gloss=.75;}
+ case 7u:{base=vec3f(.038,.013,.011);translucency=.02;gloss=.35;}
+ case 8u:{base=vec3f(.91,.88,.75);absorption=vec3f(.3,.4,.7);translucency=.12;gloss=.45;}
+ case 9u:{base=vec3f(.92,.43,.065);absorption=vec3f(.2,.7,2.5);translucency=.35;gloss=.8;}
+ case 10u:{base=vec3f(1.,.86,.40);translucency=.1;gloss=.6;}
+ case 11u:{base=vec3f(.26,.046,.030);absorption=vec3f(.5,2.,2.8);translucency=.12;gloss=.45;}
+ case 12u:{base=vec3f(.80,.20,.13);translucency=.38;gloss=.5;}
+ case 20u:{let w=v.blend/(v.blend.x+v.blend.y+v.blend.z+.0001);base=U.palette.rgb*w.x+vec3f(.16,.055,.026)*w.y+vec3f(.21,.12,.075)*w.z;absorption=vec3f(.3,1.1,1.6)*w.x+vec3f(1.4,2.8,3.7)*(w.y+w.z);translucency=.6*w.x+.23*(w.y+w.z);gloss=.65*w.x+.38*(w.y+w.z);}
+ default:{}
+ }
+ let screen=vec2i(clamp(v.clip.xy,vec2f(0),U.screen.xy-1.));let back=textureLoad(backTex,screen,0).r;let thick=clamp(back-distance(U.eye.xyz,v.p),.05,2.4);let refr=refract(-V,N,1./1.38);let transmit=exp(-absorption*thick*1.4);
+ let mottling=sin(v.rest.x*37.+sin(v.rest.y*28.))*sin(v.rest.y*44.+v.rest.z*19.);
+ var color=base*(.40+nl*.43)*sh+studio(refr)*transmit*base*translucency*.50;
+ color+=base*(pow(max(0.,dot(-N,L)),2.)*.25+exp(-thick*3.)*.14)*translucency;
+ color+=base*mottling*.009;
+ if(v.mat==3u){let strand=pow(.5+.5*sin(v.rest.x*86.+sin(v.rest.y*3.)*8.),12.);color+=vec3f(.009,.003,.001)*strand;}
+ if(v.mat==9u){let radial=sin(atan2(v.rest.y-2.04,abs(v.rest.x)-.36)*38.);color+=vec3f(.07,.045,.005)*radial;}
+ let bp=clamp(screen+vec2i(N.xy*thick*6.),vec2i(0),vec2i(U.screen.xy)-1);let bubble=textureLoad(internalTex,bp,0);color=mix(color,bubble.rgb*base+color*.55,bubble.a*.42*translucency);
+ let spec=pow(max(0.,dot(N,H)),110.)*.48;let softbox=pow(max(0.,dot(N,normalize(V+normalize(vec3f(-1.2,2.3,7.))))),95.)*.26;
+ color+=refl*fr*gloss+vec3f(spec+softbox)*gloss*sh;
+ if(v.mat==10u){color+=base*.18;}
+ return vec4f(tonemap(color),1);
+}
+struct Full {@builtin(position) clip:vec4f,@location(0) uv:vec2f};
+@vertex fn fullVS(@builtin(vertex_index) i:u32)->Full{var o:Full;let x=f32((i<<1u)&2u);let y=f32(i&2u);o.uv=vec2f(x,y);o.clip=vec4f(x*2.-1.,1.-y*2.,0.,1.);return o;}
+@fragment fn floorFS(v:Full)->@location(0) vec4f{let xy=v.uv*2.-1.;let ray=normalize(U.forward.xyz+U.right.xyz*xy.x*U.screen.z-U.up.xyz*xy.y*U.screen.w);let t=-U.eye.y/ray.y;var col=vec3f(.961,.953,.929);if(t>0.){let p=U.eye.xyz+ray*t;let s=shadow(p);let contact=exp(-dot(p.xz-U.extra.xy,p.xz-U.extra.xy)*1.4)*.045;col*=1.-(1.-s)*.18-contact;}return vec4f(col,1);}
+@vertex fn lineVS(@location(0) id:u32)->@builtin(position) vec4f {let p=nodes[id].xyz;return U.vp*vec4f(p,1);}
+@fragment fn lineFS()->@location(0) vec4f{return vec4f(.13,.22,.17,.25);}
+`;
+function lookAt(eye,target,up=[0,1,0]){let z=V.norm(V.sub(eye,target)),x=V.norm(V.cross(up,z)),y=V.cross(z,x);return new Float32Array([x[0],y[0],z[0],0,x[1],y[1],z[1],0,x[2],y[2],z[2],0,-V.dot(x,eye),-V.dot(y,eye),-V.dot(z,eye),1])}
+function multiply(a,b){let c=new Float32Array(16);for(let j=0;j<4;j++)for(let i=0;i<4;i++)for(let k=0;k<4;k++)c[j*4+i]+=a[k*4+i]*b[j*4+k];return c}
+function perspective(fov,aspect,n,f){let q=1/Math.tan(fov/2);return new Float32Array([q/aspect,0,0,0,0,q,0,0,0,0,f/(n-f),-1,0,0,n*f/(n-f),0])}
+function ortho(l,r,b,t,n,f){return new Float32Array([2/(r-l),0,0,0,0,2/(t-b),0,0,0,0,1/(n-f),0,-(r+l)/(r-l),-(t+b)/(t-b),n/(n-f),1])}
+let sim=new SoftBody(), paused=matchMedia('(prefers-reduced-motion: reduce)').matches,ready=false,preset=0,device,renderer;
+const palettes=[[.76,.31,.17,.16,.055,.026],[.87,.44,.12,.20,.075,.025],[.80,.29,.33,.16,.055,.04]];
+const names=['01 — Peach glow','02 — Honey drop','03 — Rose quartz'];
+class Renderer{
+ async init(){if(!navigator.gpu)throw Error('WebGPU is unavailable in this browser. Open this file in a current Chrome or Edge with hardware acceleration enabled. No substitute renderer is used.');let adapter=await navigator.gpu.requestAdapter({powerPreference:'high-performance'});if(!adapter)throw Error('No WebGPU adapter is available. Try Chrome or Edge with hardware acceleration, on a device that supports WebGPU.');device=await adapter.requestDevice();device.addEventListener('uncapturederror',e=>fail('WebGPU rendering error: '+e.error.message));device.lost.then(i=>fail('The GPU connection was lost. Reload this page to restart. '+i.message));this.ctx=canvas.getContext('webgpu');this.format=navigator.gpu.getPreferredCanvasFormat();this.ctx.configure({device,format:this.format,alphaMode:'opaque'});
+ let geo=makeGeometry(sim);this.geo=geo;this.uniform=new Float32Array(64);this.ub=this.buffer(this.uniform,GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST);this.nodeData=new Float32Array(sim.weights.length*4);this.nb=this.buffer(this.nodeData,GPUBufferUsage.STORAGE|GPUBufferUsage.COPY_DST);let tb=new ArrayBuffer(sim.tets.length*64),tu=new Uint32Array(tb),tf=new Float32Array(tb);for(let i=0;i<sim.tets.length;i++){tu.set(sim.tets[i],i*16);let inv=sim.invRest[i];for(let j=0;j<3;j++)tf.set(inv.slice(j*3,j*3+3),i*16+4+j*4)}this.tb=this.buffer(new Uint8Array(tb),GPUBufferUsage.STORAGE);this.vb=this.buffer(geo.vertices,GPUBufferUsage.VERTEX);this.ib=this.buffer(geo.indices,GPUBufferUsage.INDEX);let li=new Uint32Array(sim.edges.length*2);for(let i=0;i<sim.edges.length;i++){li[i*2]=sim.edges[i][0];li[i*2+1]=sim.edges[i][1]}this.lb=this.buffer(li,GPUBufferUsage.VERTEX);this.lineCount=li.length;
+ let mod=device.createShaderModule({code:shader,label:'Quill Jelly WGSL'});let info=await mod.getCompilationInfo();let errors=info.messages.filter(m=>m.type==='error');if(errors.length)throw Error(errors.map(m=>m.lineNum+': '+m.message).join('\n'));
+ this.bgl=device.createBindGroupLayout({entries:[{binding:0,visibility:3,buffer:{type:'uniform'}},{binding:1,visibility:1,buffer:{type:'read-only-storage'}},{binding:2,visibility:1,buffer:{type:'read-only-storage'}}]});this.texLayout=device.createBindGroupLayout({entries:[{binding:0,visibility:2,texture:{sampleType:'unfilterable-float'}},{binding:1,visibility:2,texture:{sampleType:'depth'}},{binding:2,visibility:2,sampler:{type:'comparison'}},{binding:3,visibility:2,texture:{sampleType:'float'}}]});this.bg=device.createBindGroup({layout:this.bgl,entries:[{binding:0,resource:{buffer:this.ub}},{binding:1,resource:{buffer:this.nb}},{binding:2,resource:{buffer:this.tb}}]});let layout=device.createPipelineLayout({bindGroupLayouts:[this.bgl,this.texLayout]}),simple=device.createPipelineLayout({bindGroupLayouts:[this.bgl]});let buffers=[{arrayStride:64,attributes:[{shaderLocation:0,offset:0,format:'float32x3'},{shaderLocation:1,offset:12,format:'float32x3'},{shaderLocation:2,offset:24,format:'float32x4'},{shaderLocation:3,offset:40,format:'float32'},{shaderLocation:4,offset:44,format:'float32'},{shaderLocation:5,offset:48,format:'float32x3'}]}];
+ const depth={format:'depth24plus',depthWriteEnabled:true,depthCompare:'less'};
+ device.pushErrorScope('validation');this.main=device.createRenderPipeline({layout,vertex:{module:mod,entryPoint:'vs',buffers},fragment:{module:mod,entryPoint:'fs',targets:[{format:this.format}]},primitive:{cullMode:'none'},depthStencil:depth,multisample:{count:4}});this.internal=device.createRenderPipeline({layout:simple,vertex:{module:mod,entryPoint:'vs',buffers},fragment:{module:mod,entryPoint:'internalFS',targets:[{format:'rgba8unorm'}]},primitive:{cullMode:'back'},depthStencil:depth});this.back=device.createRenderPipeline({layout:simple,vertex:{module:mod,entryPoint:'vs',buffers},fragment:{module:mod,entryPoint:'backFS',targets:[{format:'r32float'}]},primitive:{cullMode:'front'},depthStencil:depth});this.shadowPipe=device.createRenderPipeline({layout:simple,vertex:{module:mod,entryPoint:'shadowVS',buffers},primitive:{cullMode:'none'},depthStencil:{...depth,depthBias:2,depthBiasSlopeScale:2}});this.floor=device.createRenderPipeline({layout,vertex:{module:mod,entryPoint:'fullVS'},fragment:{module:mod,entryPoint:'floorFS',targets:[{format:this.format}]},depthStencil:{format:'depth24plus',depthWriteEnabled:false,depthCompare:'always'},multisample:{count:4}});this.lines=device.createRenderPipeline({layout:simple,vertex:{module:mod,entryPoint:'lineVS',buffers:[{arrayStride:4,attributes:[{shaderLocation:0,offset:0,format:'uint32'}]}]},fragment:{module:mod,entryPoint:'lineFS',targets:[{format:this.format,blend:{color:{srcFactor:'src-alpha',dstFactor:'one-minus-src-alpha'},alpha:{srcFactor:'one',dstFactor:'one-minus-src-alpha'}}}]},primitive:{topology:'line-list'},depthStencil:{...depth,depthWriteEnabled:false,depthCompare:'less-equal'},multisample:{count:4}});let err=await device.popErrorScope();if(err)throw err;
+ this.shadowTex=device.createTexture({size:[1024,1024],format:'depth24plus',usage:GPUTextureUsage.RENDER_ATTACHMENT|GPUTextureUsage.TEXTURE_BINDING});this.sampler=device.createSampler({compare:'less',magFilter:'linear',minFilter:'linear'});this.resize();this.lightVP=multiply(ortho(-4,4,-4,4,.1,20),lookAt([-3.5,7,4.5],[0,1,0]));
+ }
+ buffer(a,usage){let b=device.createBuffer({size:(a.byteLength+3)&~3,usage,mappedAtCreation:true});new Uint8Array(b.getMappedRange()).set(new Uint8Array(a.buffer,a.byteOffset,a.byteLength));b.unmap();return b}
+ resize(){let r=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio,1.7),w=Math.max(1,Math.round(r.width*dpr)),h=Math.max(1,Math.round(r.height*dpr));if(canvas.width===w&&canvas.height===h&&this.backTexture)return;canvas.width=w;canvas.height=h;for(let key of ['backTexture','backDepth','internalTexture','internalDepth','depth','msaa'])this[key]?.destroy();const tex=(format,sampleCount=1,usage=GPUTextureUsage.RENDER_ATTACHMENT)=>device.createTexture({size:[w,h],format,sampleCount,usage});this.backTexture=tex('r32float',1,GPUTextureUsage.RENDER_ATTACHMENT|GPUTextureUsage.TEXTURE_BINDING);this.backDepth=tex('depth24plus');this.internalTexture=tex('rgba8unorm',1,GPUTextureUsage.RENDER_ATTACHMENT|GPUTextureUsage.TEXTURE_BINDING);this.internalDepth=tex('depth24plus');this.depth=tex('depth24plus',4);this.msaa=tex(this.format,4);this.texbg=device.createBindGroup({layout:this.texLayout,entries:[{binding:0,resource:this.backTexture.createView()},{binding:1,resource:this.shadowTex.createView()},{binding:2,resource:this.sampler},{binding:3,resource:this.internalTexture.createView()}]});this.eye=[2.5,2.8,8.3];this.target=[0,1.75,0];this.forward=V.norm(V.sub(this.target,this.eye));this.right=V.norm(V.cross(this.forward,[0,1,0]));this.up=V.cross(this.right,this.forward);this.tan=.32;this.aspect=w/h;let dist=window.innerWidth<900?1.10:1;this.eye=V.add(this.target,V.mul(V.sub(this.eye,this.target),dist));this.vp=multiply(perspective(2*Math.atan(this.tan),this.aspect,.1,40),lookAt(this.eye,this.target));}
+ render(){this.resize();if(!sim.grab){let cx=0,cy=0,cz=0;for(let i=0;i<sim.weights.length;i++){cx+=sim.p[i*3];cy+=sim.p[i*3+1];cz+=sim.p[i*3+2]}let desired=[cx/sim.weights.length,cy/sim.weights.length+.05,cz/sim.weights.length];for(let k=0;k<3;k++)this.target[k]+=(desired[k]-this.target[k])*.035;let dist=window.innerWidth<900?1.10:1;this.eye=V.add(this.target,V.mul([2.5,1.05,8.3],dist));this.forward=V.norm(V.sub(this.target,this.eye));this.right=V.norm(V.cross(this.forward,[0,1,0]));this.up=V.cross(this.right,this.forward);this.vp=multiply(perspective(2*Math.atan(this.tan),this.aspect,.1,40),lookAt(this.eye,this.target));}let u=this.uniform;u.set(this.vp,0);u.set(this.lightVP,16);u.set([...this.eye,0],32);u.set([...this.right,0],36);u.set([...this.up,0],40);u.set([...this.forward,0],44);u.set([canvas.width,canvas.height,this.tan*this.aspect,this.tan],48);let pal=palettes[preset];u.set([...pal.slice(0,3),0],52);u.set([...pal.slice(3,6),0],56);let cx=0,cz=0;for(let i=0;i<sim.weights.length;i++){let q=i*3,j=i*4;this.nodeData[j]=sim.p[q];this.nodeData[j+1]=sim.p[q+1];this.nodeData[j+2]=sim.p[q+2];cx+=sim.p[q];cz+=sim.p[q+2]}u.set([cx/sim.weights.length,cz/sim.weights.length,0,0],60);device.queue.writeBuffer(this.ub,0,u);device.queue.writeBuffer(this.nb,0,this.nodeData);let en=device.createCommandEncoder();let pass=en.beginRenderPass({colorAttachments:[],depthStencilAttachment:{view:this.shadowTex.createView(),depthClearValue:1,depthLoadOp:'clear',depthStoreOp:'store'}});pass.setPipeline(this.shadowPipe);pass.setBindGroup(0,this.bg);pass.setVertexBuffer(0,this.vb);pass.setIndexBuffer(this.ib,'uint32');pass.drawIndexed(this.geo.fleshCount);pass.end();pass=en.beginRenderPass({colorAttachments:[{view:this.backTexture.createView(),clearValue:{r:0,g:0,b:0,a:0},loadOp:'clear',storeOp:'store'}],depthStencilAttachment:{view:this.backDepth.createView(),depthClearValue:1,depthLoadOp:'clear',depthStoreOp:'discard'}});pass.setPipeline(this.back);pass.setBindGroup(0,this.bg);pass.setVertexBuffer(0,this.vb);pass.setIndexBuffer(this.ib,'uint32');pass.drawIndexed(this.geo.fleshCount);pass.end();pass=en.beginRenderPass({colorAttachments:[{view:this.internalTexture.createView(),clearValue:{r:0,g:0,b:0,a:0},loadOp:'clear',storeOp:'store'}],depthStencilAttachment:{view:this.internalDepth.createView(),depthClearValue:1,depthLoadOp:'clear',depthStoreOp:'discard'}});pass.setPipeline(this.internal);pass.setBindGroup(0,this.bg);pass.setVertexBuffer(0,this.vb);pass.setIndexBuffer(this.ib,'uint32');pass.drawIndexed(this.geo.indices.length-this.geo.bubbleStart,1,this.geo.bubbleStart);pass.end();pass=en.beginRenderPass({colorAttachments:[{view:this.msaa.createView(),resolveTarget:this.ctx.getCurrentTexture().createView(),clearValue:{r:.96,g:.95,b:.93,a:1},loadOp:'clear',storeOp:'discard'}],depthStencilAttachment:{view:this.depth.createView(),depthClearValue:1,depthLoadOp:'clear',depthStoreOp:'discard'}});pass.setPipeline(this.floor);pass.setBindGroup(0,this.bg);pass.setBindGroup(1,this.texbg);pass.draw(3);pass.setPipeline(this.main);pass.setVertexBuffer(0,this.vb);pass.setIndexBuffer(this.ib,'uint32');pass.drawIndexed(this.geo.bubbleStart);if($('#mesh').checked){pass.setPipeline(this.lines);pass.setVertexBuffer(0,this.lb);pass.draw(this.lineCount)}pass.end();device.queue.submit([en.finish()]);}
+ ray(x,y){let r=canvas.getBoundingClientRect(),sx=(x-r.left)/r.width*2-1,sy=1-(y-r.top)/r.height*2;return {o:this.eye,d:V.norm(V.add(this.forward,V.add(V.mul(this.right,sx*this.tan*this.aspect),V.mul(this.up,sy*this.tan))))}}
+ pick(x,y){let ray=this.ray(x,y),best=Infinity,hit=null;for(let ids of sim.tri){let p=ids.map(i=>Array.from(sim.p.slice(i*3,i*3+3))),e1=V.sub(p[1],p[0]),e2=V.sub(p[2],p[0]),h=V.cross(ray.d,e2),det=V.dot(e1,h);if(Math.abs(det)<1e-8)continue;let inv=1/det,s=V.sub(ray.o,p[0]),u=V.dot(s,h)*inv;if(u<0||u>1)continue;let q=V.cross(s,e1),v=V.dot(ray.d,q)*inv;if(v<0||u+v>1)continue;let t=V.dot(e2,q)*inv;if(t>0&&t<best){best=t;hit=V.add(ray.o,V.mul(ray.d,t))}}return hit}
+}
+function fail(message){if(document.querySelector('.error'))return;ready=false;$('#loading').hidden=true;$('#status').dataset.state='error';$('#status span').textContent='WEBGPU · UNAVAILABLE';let el=document.createElement('section');el.className='error';let h=document.createElement('h2');h.textContent='A little more GPU, please.';let p=document.createElement('p');p.textContent=message;el.append(h,p);$('.stage').append(el);document.querySelectorAll('.panel button,.panel input').forEach(x=>x.disabled=true);console.error(message)}
+function pauseUI(){$('#pause').innerHTML=(paused?'Resume':'Pause')+' <span>'+(paused?'▷':'Ⅱ')+'</span>';$('#pause').setAttribute('aria-pressed',String(paused));if(ready)$('#status span').textContent=paused?'WEBGPU · PAUSED':'WEBGPU · LIVE'}
+$('#firmness').oninput=e=>{sim.firm=+e.target.value/100;$('#firmValue').value=e.target.value+'%'};$('#damping').oninput=e=>{sim.damp=+e.target.value/100;$('#dampValue').value=e.target.value+'%'};document.querySelectorAll('.swatch').forEach(b=>b.onclick=()=>{preset=+b.dataset.preset;document.querySelectorAll('.swatch').forEach(s=>s.setAttribute('aria-pressed',String(s===b)));$('#presetName').textContent=names[preset]});$('#pause').onclick=()=>{paused=!paused;sim.grab=null;pointers.clear();canvas.classList.remove('grabbing');pauseUI()};$('#nudge').onclick=()=>{sim.nudge();if(paused){paused=false;pauseUI()}};$('#reset').onclick=()=>{sim.reset();if(renderer)renderer.target=[0,1.75,0];pointers.clear();canvas.classList.remove('grabbing');updateMetrics()};
+canvas.onkeydown=e=>{if(e.code==='Space'){e.preventDefault();$('#pause').click()}if(e.key.toLowerCase()==='r')$('#reset').click();if(e.key.startsWith('Arrow')){e.preventDefault();sim.nudge(e.key==='ArrowLeft'?-1:1);if(paused){paused=false;pauseUI()}}};
+const pointers=new Map();let dragDepth=0,dragStartX=0,secondAngle=0;
+canvas.onpointerdown=e=>{if(!ready||paused)return;let hit=renderer.pick(e.clientX,e.clientY);if(!hit&&!sim.grab)return;canvas.setPointerCapture(e.pointerId);pointers.set(e.pointerId,[e.clientX,e.clientY]);if(pointers.size===1){if(!sim.grabAt(hit))return;dragDepth=V.dot(V.sub(hit,renderer.eye),renderer.forward);dragStartX=e.clientX;canvas.classList.add('grabbing')}else if(pointers.size===2){let a=[...pointers.values()];secondAngle=Math.atan2(a[1][1]-a[0][1],a[1][0]-a[0][0])}};
+canvas.onpointermove=e=>{if(!pointers.has(e.pointerId)||!sim.grab)return;pointers.set(e.pointerId,[e.clientX,e.clientY]);let a=[...pointers.values()],xy=a[0],ray=renderer.ray(...xy),t=dragDepth/V.dot(ray.d,renderer.forward),target=V.add(ray.o,V.mul(ray.d,t));let delta=V.sub(target,sim.grab.origin),len=Math.hypot(...delta);if(len>2.15)target=V.add(sim.grab.origin,V.mul(delta,2.15/len));target[1]=Math.max(.24,target[1]);sim.grab.target=target;if(e.shiftKey)sim.grab.twist=clamp((e.clientX-dragStartX)*.008,-.85,.85);if(a.length>1)sim.grab.twist=clamp(Math.atan2(a[1][1]-a[0][1],a[1][0]-a[0][0])-secondAngle,-.85,.85)};
+function release(e){pointers.delete(e.pointerId);if(pointers.size===0){sim.grab=null;canvas.classList.remove('grabbing')}else {sim.grab=null;pointers.clear();canvas.classList.remove('grabbing')}}canvas.onpointerup=release;canvas.onpointercancel=release;canvas.onlostpointercapture=release;
+function updateMetrics(){let m=sim.metrics();$('#mass').textContent=m.mass.toFixed(2);$('#volume').textContent=(m.volume*100).toFixed(1);$('#energy').textContent=m.energy.toFixed(3)}
+let last=0,acc=0,frames=0;function frame(now){if(!ready)return;try{let dt=Math.min((now-last)/1000||0,1/20);last=now;if(!paused&&!document.hidden){acc+=dt*($('#slow').checked?.25:1);let steps=0;while(acc>=1/120&&steps<6){sim.step();acc-=1/120;steps++}if(steps===6)acc=Math.min(acc,1/120)}else acc=0;renderer.render();if(++frames%12===0)updateMetrics();requestAnimationFrame(frame)}catch(e){fail(e.message)}}
+// The QA hook exposes actual state, never alternate rendering or fabricated data.
+window.quill={sim,get renderer(){return renderer},get ready(){return ready},get paused(){return paused},metrics:()=>sim.metrics()};
+(async()=>{try{renderer=new Renderer();await renderer.init();ready=true;$('#loading').hidden=true;pauseUI();updateMetrics();requestAnimationFrame(frame)}catch(e){fail(e.message)}})();
+</script></body></html>
